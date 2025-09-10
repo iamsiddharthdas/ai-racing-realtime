@@ -159,8 +159,28 @@ class GameRoom {
 // ----------------------------
 // Server bootstrap
 // ----------------------------
+// ----------------------------
+// Server bootstrap
+// ----------------------------
 const app = express();
-app.use(cors({ origin: (origin, cb) => cb(null, true) })); // open CORS for demo; lock down in prod
+
+// (optional but useful) quick health check
+app.get("/healthz", (_req, res) => res.status(200).send("ok"));
+
+const ALLOWED = ["https://ai-racing-realtime-skn1.vercel.app"];
+
+app.use(cors({
+  origin: (origin, cb) => cb(null, !origin || ALLOWED.includes(origin)),
+  methods: ["GET", "POST"],
+  credentials: false
+}));
+
+const httpServer = http.createServer(app);
+
+const io = new Server(httpServer, {
+  cors: { origin: ALLOWED, methods: ["GET","POST"] },
+  transports: ["websocket", "polling"] // keep polling until WS is confirmed working
+});
 
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
