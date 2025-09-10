@@ -55,7 +55,7 @@ class GameRoom {
   timeLeft = 20;
   players: Map<string, Player> = new Map();
   finishedOrder: string[] = [];
-  interval?: NodeJS.Timer;
+  interval?: ReturnType<typeof setInterval>;
   answered: Set<string> = new Set(); // one answer per player per question
 
   constructor(id: string, private io: Server) { this.id = id; }
