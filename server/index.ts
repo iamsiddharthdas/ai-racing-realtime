@@ -162,9 +162,12 @@ class GameRoom {
 // ----------------------------
 // Server bootstrap
 // ----------------------------
+// ----------------------------
+// Server bootstrap
+// ----------------------------
 const app = express();
 
-// (optional but useful) quick health check
+// optional health check
 app.get("/healthz", (_req, res) => res.status(200).send("ok"));
 
 const ALLOWED = ["https://ai-racing-realtime-skn1.vercel.app"];
@@ -179,13 +182,7 @@ const httpServer = http.createServer(app);
 
 const io = new Server(httpServer, {
   cors: { origin: ALLOWED, methods: ["GET","POST"] },
-  transports: ["websocket", "polling"] // keep polling until WS is confirmed working
-});
-
-const httpServer = http.createServer(app);
-const io = new Server(httpServer, {
-  cors: { origin: "*", methods: ["GET", "POST"] },
-  transports: ["websocket"], // WS only for low-latency
+  transports: ["websocket", "polling"] // keep polling until WS is verified
 });
 
 const rooms = new Map<string, GameRoom>();
