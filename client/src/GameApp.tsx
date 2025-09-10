@@ -108,14 +108,17 @@ function GameInner(){
   const leaderboard = useMemo(() => [...players].sort((a,b)=> b.progress - a.progress || b.score - a.score), [players]);
 
   return (
-    <div className="grid gap-6">
-      <header className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="h-7 w-7 rounded-full bg-cyan-400/20 border border-cyan-300/40" />
-          <h1 className="text-2xl font-semibold tracking-wider animate-neon-flicker">Neon Speedway · AI Racing</h1>
-        </div>
-        <div className="text-xs text-cyan-200/80">Fair Play · Honest answers only</div>
-      </header>
+    <header className="flex items-center justify-between">
+  <div className="flex items-center gap-3">
+    <div className="h-7 w-7 rounded-full bg-cyan-400/20 border border-cyan-300/40" />
+    <h1 className="text-2xl font-semibold tracking-wider animate-neon-flicker">
+      Neon Speedway · AI Racing
+    </h1>
+  </div>
+  <div className="text-xs">
+    {connected ? "🟢 Connected" : "🔴 Offline"} {lastError ? `— ${lastError}` : ""}
+  </div>
+</header>
 
       {!me ? <Lobby onJoin={join} /> : (
         <div className="grid md:grid-cols-3 gap-6">
