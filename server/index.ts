@@ -159,13 +159,31 @@ class GameRoom {
 // ----------------------------
 // Server bootstrap
 // ----------------------------
-// ----------------------------
-// Server bootstrap
-// ----------------------------
-// ----------------------------
-// Server bootstrap
-// ----------------------------
 const app = express();
+
+// health
+app.get("/healthz", (_req, res) => res.status(200).send("ok"));
+
+// Wide-open CORS for debugging (we'll lock later)
+app.use(cors({ origin: (origin, cb) => cb(null, true), methods: ["GET","POST"] }));
+
+const httpServer = http.createServer(app);
+
+const io = new Server(httpServer, {
+  cors: { origin: "*", methods: ["GET","POST"] },
+  transports: ["websocket", "polling"] // allow fallback during debug
+});
+
+// Debug logs (optional, but very helpful)
+io.on("connection", (socket) => {
+  console.log("[io] connected", socket.id);
+
+  socket.on("room:join", (payload) => { console.log("[io] room:join", payload); });
+  socket.on("race:start", () => console.log("[io] race:start"));
+  socket.on("race:next",  () => console.log("[io] race:next"));
+  socket.on("race:reset", () => console.log("[io] race:reset"));
+  socket.on("answer:submit", (p) => console.log("[io] answer:submit", p));
+});
 
 // optional health check
 app.get("/healthz", (_req, res) => res.status(200).send("ok"));
