@@ -68,21 +68,29 @@ function GameInner(){
   const [lock, setLock] = useState(false);
 
   useEffect(() => {
-    const s = io(SOCKET_URL, { transports: ["websocket"], autoConnect: true });
-    socketRef.current = s;
+  const s = io(SOCKET_URL, {
+    transports: ["websocket"], // keep low-latency; we’ll relax in step 3 if needed
+    autoConnect: true
+  });
+  socketRef.current = s;
 
-    s.on("room:joined", (payload:any) => setMe(payload.player));
-    s.on("state:update", (w:Wire) => {
-      setPlayers(w.players || []);
-      setStarted(!!w.started);
-      setQuestion(w.question || null);
-      setTimeLeft(w.timeLeft ?? 0);
-      setFinished(w.finished || []);
-      setLock(false);
-    });
+  s.on("connect", () => { setConnected(true); setLastError(null); });
+  s.on("disconnect", () => setConnected(false));
+  s.on("connect_error", (err: any) => { setConnected(false); setLastError(String(err?.message || err)); });
+  s.on("error", (err: any) => { setLastError(String(err?.message || err)); });
 
-    return () => { s.disconnect(); };
-  }, []);
+  s.on("room:joined", (payload:any) => setMe(payload.player));
+  s.on("state:update", (w:Wire) => {
+    setPlayers(w.players || []);
+    setStarted(!!w.started);
+    setQuestion(w.question || null);
+    setTimeLeft(w.timeLeft ?? 0);
+    setFinished(w.finished || []);
+    setLock(false);
+  });
+
+  return () => { s.disconnect(); };
+}, []);
 
   function join(name: string, color: string){
     socketRef.current?.emit("room:join", { name, color });
